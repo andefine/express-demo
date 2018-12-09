@@ -5,7 +5,15 @@ const PostModel = require('../models/posts')
 const checkLogin = require('../middlewares/check').checkLogin
 
 router.get('/', function (req, res, next) {
-  res.render('posts')
+  const author = req.query.author
+
+  PostModel.getPosts(author)
+  .then(function (posts) {
+    res.render('posts', {
+      posts
+    })
+  })
+  .catch(next)
 })
 
 router.post('/create', checkLogin, function (req, res, next) {
@@ -40,8 +48,28 @@ router.post('/create', checkLogin, function (req, res, next) {
   .catch(next)
 })
 
-router.get('/create', checkLogin, function (req, res, netx) {
+router.get('/create', checkLogin, function (req, res, next) {
   res.render('create')
+})
+
+router.get('/:postId', function (req, res, next) {
+  const postId = req.params.postId
+
+  Promise.all([
+    PostModel.getPostById(postId),
+    PostModel.incPv(postId)
+  ])
+  .then(function (result) {
+    const post = result[0]
+    if (!post) {
+      throw new Error('该文章不存在')
+    }
+
+    res.render('post', {
+      post
+    })
+  })
+  .catch(next)
 })
 
 router.get('/:postId/edit', checkLogin, function (req, res, next) {
