@@ -65,5 +65,34 @@ module.exports = {
       }
     })
     .exec()
+  },
+
+  getRawPostById: function (postId) {
+    return Post
+    .findOne({
+      _id: postId
+    })
+    .populate({
+      path: 'author',
+      model: 'User'
+    })
+    .exec()
+  },
+
+  updatePostById: function (postId, data) {
+    return Post
+    .update({
+      _id: postId
+    }, {
+      $set: data
+    })
+    .exec()
+  },
+
+  delPostById: function (postId) {
+    return Post.deleteOne({
+      _id: postId
+    })
+    .exec()
   }
 }
