@@ -8,6 +8,8 @@ const routes = require('./routes')
 const pkg = require('./package')
 
 const app = express()
+const winston = require('winston')
+const expressWinston = require('express-winston')
 
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
@@ -46,7 +48,33 @@ app.use(function (req, res, next) {
   next()
 })
 
+// 正常请求的日志
+app.use(expressWinston.logger({
+  transports: [
+    new (winston.transports.Console)({
+      json: true,
+      colorize: true
+    }),
+    new winston.transports.File({
+      filename: 'logs/success.log'
+    })
+  ]
+}))
+
 routes(app)
+
+// 错误请求的日志
+app.use(expressWinston.logger({
+  transports: [
+    new winston.transports.Console({
+      json: true,
+      colorize: true
+    }),
+    new winston.transports.File({
+      filename: 'logs/error.log'
+    })
+  ]
+}))
 
 app.use((err, req, res, next) => {
   console.log(err)
