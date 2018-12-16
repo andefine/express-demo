@@ -48,6 +48,12 @@ app.use(function (req, res, next) {
 
 routes(app)
 
+app.use((err, req, res, next) => {
+  console.log(err)
+  req.flash('error', err.message)
+  res.redirect('/posts')
+})
+
 app.listen(config.port, function () {
   console.log(`${pkg.name} listening on port ${config.port}`)
 })
